@@ -49,6 +49,19 @@ func getTodosHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, items)
 }
 
+func getTodosHandlerbyid(c echo.Context) error {
+	var id int
+	err := echo.PathParamsBinder(c).Int("id", &id).BindError()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	t, ok := todos[id]
+	if !ok {
+		return c.JSON(http.StatusOK, map[int]string{})
+	}
+	return c.JSON(http.StatusOK, t)
+}
+
 func main() {
 	e := echo.New()
 
@@ -56,6 +69,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.GET("/hello", helloHandler)
 	e.GET("/todo", getTodosHandler)
+	e.GET("/todo/:id", getTodosHandlerbyid)
 	e.POST("/todo", createTodosHandler)
 
 	port := os.Getenv("PORT")
