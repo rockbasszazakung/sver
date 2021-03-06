@@ -15,7 +15,7 @@ func helloHandler(c echo.Context) error {
 
 func main() {
 	e := echo.New()
-	e.GET("/hello", helloHandler)
+	e.POST("/hello", helloHandler)
 	port := os.Getenv("PORT")
 	//log.Print("Port", port)
 	e.Start(":" + port)
