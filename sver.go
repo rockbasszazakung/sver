@@ -23,7 +23,7 @@ type Todo struct {
 }
 
 var todos = map[int]*Todo{
-	1: &Todo{ID: 1, Title: "Pay Com", Status: "active"},
+	1: {ID: 1, Title: "Pay Com", Status: "active"},
 }
 
 func getTodosHandler(c echo.Context) error {
