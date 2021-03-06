@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 )
@@ -15,5 +16,7 @@ func helloHandler(c echo.Context) error {
 func main() {
 	e := echo.New()
 	e.GET("/hello", helloHandler)
-	e.Start(":1323")
+	port := os.Getenv("PORT")
+	//log.Print("Port", port)
+	e.Start(":" + port)
 }
