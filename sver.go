@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func helloHandler(c echo.Context) error {
@@ -14,9 +15,17 @@ func helloHandler(c echo.Context) error {
 	})
 }
 
+// `
+type Todo struct {
+}
+
 func main() {
 	e := echo.New()
-	e.GET("/hello", helloHandler)
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.GET("/todo", helloHandler)
 	port := os.Getenv("PORT")
 	//log.Print("Port", port)
 	e.Start(":" + port)
