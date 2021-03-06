@@ -16,6 +16,7 @@ func helloHandler(c echo.Context) error {
 }
 
 // `
+
 type Todo struct {
 	ID     int    `json:"id"`
 	Title  string `json:"title"`
@@ -24,6 +25,20 @@ type Todo struct {
 
 var todos = map[int]*Todo{
 	1: {ID: 1, Title: "Pay Com", Status: "active"},
+}
+
+func createTodosHandler(e echo.Context) error {
+
+	t := Todo{}
+	if err := e.Bind(&t); err != nil {
+		return e.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	id := len(todos)
+	id++
+	t.ID = id
+	todos[t.ID] = &t
+	return e.JSON(http.StatusCreated, "created todo")
+
 }
 
 func getTodosHandler(c echo.Context) error {
@@ -39,8 +54,10 @@ func main() {
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
+	e.GET("/hello", helloHandler)
 	e.GET("/todo", getTodosHandler)
+	e.POST("/todo", createTodosHandler)
+
 	port := os.Getenv("PORT")
 	//log.Print("Port", port)
 	e.Start(":" + port)
