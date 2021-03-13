@@ -1,7 +1,10 @@
 package todo
 
 import (
+	"database/sql"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
@@ -25,32 +28,36 @@ func helloHandler(c echo.Context) error {
 }
 
 func GetTodosHandler(c echo.Context) error {
+	// t := Todo{}
 	items := []*Todo{}
-	for _, item := range todos {
+	// for _, item := range todos {
+	// 	items = append(items, item)
+	// }
+	// return c.JSON(http.StatusOK, items)
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal("Connect to database error,err")
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("SELECT id, title, status FROM todos")
+	if err != nil {
+		log.Fatal("can't prepare query all todos statment", err)
+	}
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Fatal("can't query all todos", err)
+	}
+	for rows.Next() {
+		item := &Todo{}
+		err := rows.Scan(&item.ID, &item.Title, &item.Status)
+		if err != nil {
+			log.Fatal("can't Scan row into variable", err)
+		}
+		// return c.JSON(http.StatusOK, t)
 		items = append(items, item)
+
 	}
 	return c.JSON(http.StatusOK, items)
+	// fmt.Println("query all todos success")
 }
-
-// func GetTodosHandlerbyid(c echo.Context) error {
-// 	t := Todo{}
-// 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-// 	if err != nil {
-// 		log.Fatal("Connect to database error,err")
-// 	}
-// 	defer db.Close()
-
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	stmt, err := db.Prepare("SELECT id,title,status FROM todos WHERE id=$1")
-// 	if err != nil {
-// 		log.Fatal("can'tprepare query one row statment", err)
-// 	}
-
-// 	row := stmt.QueryRow(id)
-// 	err = row.Scan(&t.ID, &t.Title, &t.Status)
-// 	if err != nil {
-// 		log.Fatal("can't Scan row into ", err)
-
-// 	}
-// 	return c.JSON(http.StatusOK, t)
-// }
